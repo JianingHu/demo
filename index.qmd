@@ -66,7 +66,8 @@ cutoff_sim <- sld_sim|>
 ## spiderplot
 
 ```{r}
-ggplot(sld_sim |> filter(id == "18"), aes(x=trial_day, y=percent_change, group=sim_id , color=trial_arm))+
+{ggplot(sld_sim |> filter(id == "18"), aes(x=trial_day, y=percent_change, group=sim_id , color=trial_arm))+
   geom_line() +
-  geom_point()
+  geom_point()} |>
+  ggplotly()
 ```
