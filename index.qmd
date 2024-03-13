@@ -3,6 +3,7 @@ title: "demo"
 output: 
   html_document:
     code_folding: hide
+    self-contained: true
 ---
 
 ```{r setup, include=FALSE}
