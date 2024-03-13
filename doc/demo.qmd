@@ -1,0 +1,66 @@
+---
+title: "demo"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(glue)
+theme_set(theme_classic())
+```
+
+
+## biomarkers
+```{r}
+sld_change <- read_csv("sld_data.csv")
+# sld <- data.frame(
+#   id = c(c(rep('00', 10), rep('01', 10))),
+#   measurement_value = runif(20, 0, 100)) |>
+#   group_by(id) |>
+#   mutate(trial_day = (row_number()-1)*9) |>
+#   ungroup()
+
+# sld_change <- sld |> group_by(id) |>
+#   mutate(baseline_sld = first(measurement_value, trial_day),
+#          percent_change = (measurement_value - baseline_sld)/baseline_sld)
+```
+
+
+## Simulation
+```{r}
+sld_sim <- bind_rows(
+  lapply(c("1", "1.3", "1.6", "1.9"), 
+         function(i) mutate(sld_change, trial_arm = i))) |>
+  mutate(mod_level = as.numeric(str_extract(trial_arm, "\\d+(\\.\\d+)?")),
+         percent_change = percent_change * mod_level,
+         percent_change = ifelse(percent_change < -1, -1, percent_change),
+         sim_id = glue::glue('{trial_arm}-{id}')) |>
+  group_by(sim_id) |>
+  mutate(percent_change = ifelse(cumsum(percent_change == -1) > 0, -1, percent_change))
+
+sim_id_cutoff = sld_sim |> filter(trial_arm != "1") |> distinct(sim_id) |> pull()
+
+cutoff <- data.frame(
+  sim_id = sim_id_cutoff,
+  # mean(rnbinom(100, size = 5, prob = 0.3) < 6)
+  cutoff_number = rnbinom(length(sim_id_cutoff), size = 5, prob = 0.3)
+)
+
+cutoff_sim <- sld_sim|>
+  left_join(cutoff) |>
+  mutate(cutoff_number = ifelse(is.na(cutoff_number), Inf, cutoff_number)) |>
+  group_by(sim_id) |>
+  arrange(trial_day) |>
+  slice(seq_len(min(cutoff_number, n())))
+```
+
+## spiderplot
+```{r}
+{ggplot(sld_sim |> filter(id == "18"), aes(x=trial_day, y=percent_change, group=sim_id , color=trial_arm))+
+  geom_line() +
+  geom_point()} |>
+  ggplotly()
+```
