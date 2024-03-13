@@ -65,9 +65,21 @@ cutoff_sim <- sld_sim|>
 
 ## spiderplot
 
+::: panel-tabset
+
+### table 1
 ```{r}
 {ggplot(sld_sim |> filter(id == "18"), aes(x=trial_day, y=percent_change, group=sim_id , color=trial_arm))+
   geom_line() +
   geom_point()} |>
   ggplotly()
 ```
+
+### table 2
+```{r}
+{ggplot(sld_sim |> filter(trial_arm == '1'), aes(x=trial_day, y=percent_change, group=sim_id , color=BOR))+
+  geom_line() +
+  geom_point()} |>
+  ggplotly()
+```
+:::
