@@ -1,8 +1,13 @@
 ---
 title: "demo"
-format: html
-editor: visual
+output: 
+  html_document:
+    code_folding: hide
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
 
 ```{r}
 library(tidyverse)
@@ -12,8 +17,8 @@ library(glue)
 theme_set(theme_classic())
 ```
 
-
 ## biomarkers
+
 ```{r}
 sld_change <- read_csv("sld_data.csv")
 # sld <- data.frame(
@@ -28,8 +33,8 @@ sld_change <- read_csv("sld_data.csv")
 #          percent_change = (measurement_value - baseline_sld)/baseline_sld)
 ```
 
-
 ## Simulation
+
 ```{r}
 sld_sim <- bind_rows(
   lapply(c("1", "1.3", "1.6", "1.9"), 
@@ -58,6 +63,7 @@ cutoff_sim <- sld_sim|>
 ```
 
 ## spiderplot
+
 ```{r}
 {ggplot(sld_sim |> filter(id == "18"), aes(x=trial_day, y=percent_change, group=sim_id , color=trial_arm))+
   geom_line() +
